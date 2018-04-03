@@ -32,6 +32,7 @@ app.use(express.static('public'));
 app.use(express.json());
 
 passport.use(localStrategy);
+passport.use(jwtStrategy);
 
 // Mount routers
 app.use('/api', usersRouter);
