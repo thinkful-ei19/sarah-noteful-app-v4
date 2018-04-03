@@ -2,15 +2,14 @@
 
 const mongoose = require('mongoose');
 
-const noteSchema = new mongoose.Schema({
-  title: { type: String },
-  content: { type: String },
-  created: { type: Date, default: Date.now },
-  folderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Folder' },
-  tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }],
+const userSchema = new mongoose.Schema({
+  fullname: { type: String },
+  username: { type: String, require: true, unique: true },
+  password: { type: String, require: true },
+  
 });
 
-noteSchema.set('toObject', {
+userSchema.set('toObject', {
   transform: function (doc, ret) {
     ret.id = ret._id;
     delete ret._id;
@@ -18,4 +17,4 @@ noteSchema.set('toObject', {
   }
 });
 
-module.exports = mongoose.model('Note', noteSchema);
+module.exports = mongoose.model('User', userSchema);
