@@ -20,16 +20,12 @@ router.post('/users', (req, res, next) => {
   // }
 
   User.create(newUser)
-    .then(result => {
+    .then((result) => {
+      console.log(newUser);
       res.location(`${req.originalUrl}/${result.id}`).status(201).json(result);
     })
-    .catch(err => {
-      if (err.code === 11000) {
-        err = new Error('The user name already exists');
-        err.status = 400;
-      }
-      next(err);
-    });
-
+    .catch((err) => next(err));
 });
+
+
 module.exports = router;
