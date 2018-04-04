@@ -6,6 +6,8 @@ const router = express.Router();
 const mongoose = require('mongoose');
 
 const Note = require('../models/note');
+const Folder = require('../models/folder');
+const Tag = require('../models/tag');
 
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/notes', (req, res, next) => {
@@ -72,12 +74,20 @@ router.get('/notes/:id', (req, res, next) => {
 router.post('/notes', (req, res, next) => {
   const { title, content, folderId, tags } = req.body;
   const userId = req.user.id;
+  console.log(req.user);
+  const newNote = { title, content, tags, userId };
+  console.log(newNote);
 
   /***** Never trust users - validate input *****/
   if (!title) {
     const err = new Error('Missing `title` in request body');
     err.status = 400;
     return next(err);
+  }
+
+  if (mongoose.Types.ObjectId.isValid(folderId)) {
+    newNote.folderId = folderId;
+    console.log(newNote.folderId);
   }
 
   if (tags) {
@@ -89,14 +99,50 @@ router.post('/notes', (req, res, next) => {
       }
     });
   }
+  //if folderId, verify that the id belongs to the user
+  function verifyFolderId(userId, folderId) {
+    console.log(userId, folderId);
+    if (!folderId) {
+      return Promise.resolve();
+    }
+    return Folder.findOne( {_id: folderId, userId} )
+      .then(result => {
+        console.log(result);
+        if(!result) {
+          return Promise.reject('Folder is not valid');
+        }
+      });
+  }
 
-  const newItem = { title, content, folderId, tags, userId };
+  //if tagId, verify that the id belongs to the user
+  function verifyTagId(userId, tags = []) {
+    if (!tags.length) {
+      return Promise.resolve();
+    }
+    return Tag.find({$and: [{_id: {$in: tags}, userId}]})
+      .then(results => {
+        if (tags.length !== results.length) {
+          return Promise.reject('Tag is not valid');
+        }
+      });
+  }
 
-  Note.create(newItem)
+  
+  Promise.all([verifyFolderId(userId, folderId), verifyTagId(userId, tags)])
+    .then(() => 
+      Note.create(newNote))
     .then(result => {
       res.location(`${req.originalUrl}/${result.id}`).status(201).json(result);
     })
     .catch(err => {
+      if(err === 'Folder is not valid') {
+        err = new Error('Folder is not valid');
+        err.status = 400;
+      }
+      if(err === 'Tag is not valid') {
+        err = new Error('Tag is not valid');
+        err.status = 400;
+      }
       next(err);
     });
 });
@@ -105,9 +151,9 @@ router.post('/notes', (req, res, next) => {
 router.put('/notes/:id', (req, res, next) => {
   const { id } = req.params;
   const { title, content, folderId, tags } = req.body;
+  
   const userId = req.user.id;
-  const updateItem = { title, content, tags, userId };
-  console.log(updateItem);
+  const updateItem = { title, content, tags, userId, folderId };
   const options = { new: true };
 
   /***** Never trust users - validate input *****/
@@ -137,11 +183,40 @@ router.put('/notes/:id', (req, res, next) => {
     });
   }
 
+  //if folderId, verify that the id belongs to the user
+  function verifyFolderId(userId, folderId) {
+    console.log(folderId);
+    console.log(userId);
+    if (!folderId) {
+      return Promise.resolve();
+    }
+    return Folder.findOne( {_id: folderId, userId} )
+      .then(result => {
+        console.log(result);
+        if(!result) {
+          return Promise.reject('Folder is not valid');
+        }
+      });
+  }
+
+  //if tagId, verify that the id belongs to the user
+  function verifyTagId(userId, tags = []) {
+    if (!tags.length) {
+      return Promise.resolve();
+    }
+    return Tag.find({$and: [{_id: {$in: tags}, userId}]})
+      .then(results => {
+        if (tags.length !== results.length) {
+          return Promise.reject('Tag is not valid');
+        }
+      });
+  }
 
 
-
-  Note.findByIdAndUpdate(id, updateItem, options)
-    .populate('tags')
+  Promise.all([verifyFolderId(userId, folderId), verifyTagId(userId, tags)])
+    .then(() => {
+      return Note.findByIdAndUpdate(id, updateItem, options)
+        .populate('tags');})
     .then(result => {
       if (result) {
         res.json(result);
@@ -150,6 +225,15 @@ router.put('/notes/:id', (req, res, next) => {
       }
     })
     .catch(err => {
+      if(err === 'Folder is not valid') {
+        err = new Error('Folder is not valid');
+        err.status = 400;
+      }
+      if(err === 'Tag is not valid') {
+        err = new Error('Tag is not valid');
+        err.status = 400;
+      }
+
       next(err);
     });
 });
