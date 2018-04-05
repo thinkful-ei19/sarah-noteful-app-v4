@@ -58,6 +58,7 @@ describe.only('Noteful API - Users', function () {
           .then(user => {
             expect(user).to.exist;
             expect(user._id.toString()).to.equal(res.body.id);
+            //expect(user.id).to.equal(res.body.id);
             expect(user.fullname).to.equal(testUser.fullname);
             return user.validatePassword(password);
           })
@@ -214,7 +215,7 @@ describe.only('Noteful API - Users', function () {
             expect(res.body.error).be.empty;
           });
       });
-      it.only('Should reject users with duplicate username', function () {
+      it('Should reject users with duplicate username', function () {
         const testUser = { username, password, fullname };
         return User.create({username, password, fullname})
           .then(() => 
@@ -232,7 +233,39 @@ describe.only('Noteful API - Users', function () {
             expect(res.body.error).be.empty;
           });
       });
-      it('Should trim fullname');
+      it.only('Should trim fullname', function() {
+        const testUser = {username, password, fullname: ` ${fullname} ` };
+        console.log(testUser);
+        let res;
+
+        return chai.request(app).post('/api/users')
+          .send(testUser)
+          .then(_res => {
+            res = _res;
+            console.log(res.body);
+            expect(res).to.have.status(201);
+            expect(res).to.be.json;
+            expect(res.body).to.be.an('object');
+            expect(res.body).to.have.keys('id', 'username', 'fullname');
+
+            expect(res.body.id).to.exist;
+            expect(res.body.username).to.equal(username);
+            expect(res.body.fullname).to.equal(fullname);
+
+            return User.findOne({username});
+          })
+          .then(user => {
+            console.log(user);
+            expect(user).to.not.be.null;
+            expect(user.id).to.equal(res.body.id);
+            expect(user.username).to.equal(testUser.username);
+            expect(user.username).to.equal(res.body.username);
+            return user.validatePassword(password);
+          })
+          .then(isValid => {
+            expect(isValid).to.be.true;
+          });
+      });
     });
 
     describe('GET', function () {
