@@ -74,9 +74,7 @@ router.get('/notes/:id', (req, res, next) => {
 router.post('/notes', (req, res, next) => {
   const { title, content, folderId, tags } = req.body;
   const userId = req.user.id;
-  console.log(req.user);
   const newNote = { title, content, tags, userId };
-  console.log(newNote);
 
   /***** Never trust users - validate input *****/
   if (!title) {
@@ -87,7 +85,6 @@ router.post('/notes', (req, res, next) => {
 
   if (mongoose.Types.ObjectId.isValid(folderId)) {
     newNote.folderId = folderId;
-    console.log(newNote.folderId);
   }
 
   if (tags) {
@@ -107,7 +104,6 @@ router.post('/notes', (req, res, next) => {
     }
     return Folder.findOne( {_id: folderId, userId} )
       .then(result => {
-        console.log(result);
         if(!result) {
           return Promise.reject('Folder is not valid');
         }
@@ -156,7 +152,7 @@ router.put('/notes/:id', (req, res, next) => {
   const updateItem = { title, content, tags, userId, folderId };
   const options = { new: true };
 
-  /***** Never trust users - validate input *****/
+  /***** Never trust users or developers - validate input *****/
   if (!title) {
     const err = new Error('Missing `title` in request body');
     err.status = 400;
