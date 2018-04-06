@@ -15,7 +15,7 @@ const User = require('../models/user');
 const expect = chai.expect;
 chai.use(chaiHttp);
 
-describe.only('Tests for Noteful login API', function() {
+describe('Tests for Noteful login API', function() {
   let token;
   const fullname = 'Example User';
   const username = 'exampleUser';
@@ -55,7 +55,7 @@ describe.only('Tests for Noteful login API', function() {
   });
 
   describe('Noteful /api/login', function() {
-    it.only('Should return a valid token', function () {
+    it('Should return a valid token', function () {
       return chai.request(app).post('/api/login').send({username, password})
         .then(res => {
           console.log(res.body);
@@ -69,7 +69,7 @@ describe.only('Tests for Noteful login API', function() {
           expect(payload.user.username).to.equal(username);
           expect(payload.user.fullname).to.equal(fullname);
           expect(payload.user.id).to.deep.equal(_id);
-          //expect(payload.user).to.deep.equal({ id, username, fullname });
+          expect(payload.user).to.deep.equal({ id: _id, username, fullname });
         });  
     });
 
@@ -97,7 +97,7 @@ describe.only('Tests for Noteful login API', function() {
         });  
     });
 
-    it.only('Should reject requests with incorrect passwords', function() {
+    it('Should reject requests with incorrect passwords', function() {
       return chai.request(app).post('/api/login').send({username, password: 'blahblahblah'})
         .catch(err => err.respone)
         .then(res => {
