@@ -242,9 +242,12 @@ describe('Noteful API - Users', function () {
             chai.request(app).post('/api/users')
               .send(testUser)
           )
-          .catch(err => err.response)
-          .then(res => {
-            console.log(res.body);
+          .catch(err => {
+            if(err instanceof chai.AssertionError) {
+              throw err;
+            }
+            //.then(res => {
+            const res = err.response;
             expect(res).to.have.status(400);
             expect(res).to.be.json;
             expect(res.body).to.be.an('object');
@@ -253,7 +256,7 @@ describe('Noteful API - Users', function () {
             expect(res.body.error).be.empty;
           });
       });
-      
+
       it('Should trim fullname', function() {
         const testUser = {username, password, fullname: ` ${fullname} ` };
         console.log(testUser);
