@@ -14,7 +14,7 @@ const expect = chai.expect;
 
 chai.use(chaiHttp);
 
-describe.only('Noteful API - Users', function () {
+describe('Noteful API - Users', function () {
   const username = 'exampleUser';
   const password = 'examplePass';
   const fullname = 'Example User';
@@ -37,7 +37,7 @@ describe.only('Noteful API - Users', function () {
   });
 
   describe('/api/users', function () {
-    describe.only('POST', function () {
+    describe('POST', function () {
       it('Should create a new user', function () {
         const testUser = { username, password, fullname };
 
@@ -94,7 +94,6 @@ describe.only('Noteful API - Users', function () {
           return chai.request(app).post('/api/users').send(testUser)
             .catch(err => err.response)
             .then(res => {
-              console.log(res.body.location);
               expect(res).to.have.status(422);
               expect(res).to.be.json;
               expect(res.body).to.be.an('object');
@@ -215,6 +214,27 @@ describe.only('Noteful API - Users', function () {
             expect(res.body.error).be.empty;
           });
       });
+
+      // it('Should reject users with duplicate username', function () {
+      //   return User
+      //     .create({
+      //       username,
+      //       password,
+      //       fullname
+      //     })
+      //     .then(() => {
+      //       return chai
+      //         .request(app)
+      //         .post('/api/users')
+      //         .send({ username, password, fullname });
+      //     })
+      //     .catch(err => err.response)
+      //     .then(res => {
+      //       expect(res).to.have.status(400);
+      //       expect(res.body.message).to.equal('The username already exists');
+      //     });
+      // });
+
       it('Should reject users with duplicate username', function () {
         const testUser = { username, password, fullname };
         return User.create({username, password, fullname})
@@ -233,7 +253,8 @@ describe.only('Noteful API - Users', function () {
             expect(res.body.error).be.empty;
           });
       });
-      it.only('Should trim fullname', function() {
+      
+      it('Should trim fullname', function() {
         const testUser = {username, password, fullname: ` ${fullname} ` };
         console.log(testUser);
         let res;
@@ -268,36 +289,36 @@ describe.only('Noteful API - Users', function () {
       });
     });
 
-    describe('GET', function () {
-      it('Should return an empty array initially', function () {
-        return chai.request(app).get('/api/users')
-          .then(res => {
-            expect(res).to.have.status(200);
-            expect(res.body).to.be.an('array');
-            expect(res.body).to.have.length(0);
-          });
-      });
-      it('Should return an array of users', function () {
-        const testUser0 = {
-          username: `${username}`,
-          password: `${password}`,
-          fullname: ` ${fullname} `
-        };
-        const testUser1 = {
-          username: `${username}1`,
-          password: `${password}1`,
-          fullname: `${fullname}1`
-        };
-        const testUser2 = {
-          username: `${username}2`,
-          password: `${password}2`,
-          fullname: `${fullname}2`
-        };
+    // describe('GET', function () {
+    //   it('Should return an empty array initially', function () {
+    //     return chai.request(app).get('/api/users')
+    //       .then(res => {
+    //         expect(res).to.have.status(200);
+    //         expect(res.body).to.be.an('array');
+    //         expect(res.body).to.have.length(0);
+    //       });
+    //   });
+    //   it('Should return an array of users', function () {
+    //     const testUser0 = {
+    //       username: `${username}`,
+    //       password: `${password}`,
+    //       fullname: ` ${fullname} `
+    //     };
+    //     const testUser1 = {
+    //       username: `${username}1`,
+    //       password: `${password}1`,
+    //       fullname: `${fullname}1`
+    //     };
+    //     const testUser2 = {
+    //       username: `${username}2`,
+    //       password: `${password}2`,
+    //       fullname: `${fullname}2`
+    //     };
 
-        /**
-         * CREATE THE REQUEST AND MAKE ASSERTIONS
-         */
-      });
-    });
+    //     /**
+    //      * CREATE THE REQUEST AND MAKE ASSERTIONS
+    //      */
+    //   });
+    // });
   });
 });
