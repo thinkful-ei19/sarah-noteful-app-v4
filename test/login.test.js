@@ -20,6 +20,7 @@ describe.only('Tests for Noteful login API', function() {
   const fullname = 'Example User';
   const username = 'exampleUser';
   const password = 'examplePass';
+  const _id = '333333333333333333333300';
 
   before(function () {
     return mongoose.connect(TEST_MONGODB_URI)
@@ -28,12 +29,22 @@ describe.only('Tests for Noteful login API', function() {
 
   beforeEach(function () {
     return User.hashPassword(password)
-      .then(digest => User.create({
-        username,
-        password: digest,
-        fullname
-      }));
+      .then(digest => {
+        return User.create({
+          username,
+          password: digest,
+          fullname,
+          _id
+          // toObject: {
+          //   transform: function (doc, ret) {
+          //     ret.id = ret._id;
+          //   }
+          // }
+          
+        });
+      });
   });
+
 
   afterEach(function () {
     return mongoose.connection.db.dropDatabase();
@@ -44,7 +55,7 @@ describe.only('Tests for Noteful login API', function() {
   });
 
   describe('Noteful /api/login', function() {
-    it('Should return a valid token', function () {
+    it.only('Should return a valid token', function () {
       return chai.request(app).post('/api/login').send({username, password})
         .then(res => {
           console.log(res.body);
@@ -55,9 +66,51 @@ describe.only('Tests for Noteful login API', function() {
           console.log(payload);
           expect(payload.user).to.not.have.property('password');
           expect(payload.user).to.have.keys( 'id', 'username', 'fullname');
-          expect(payload.user.username).to.deep.equal(username);
-          expect(payload.user.fullname).to.deep.equal(fullname);
+          expect(payload.user.username).to.equal(username);
+          expect(payload.user.fullname).to.equal(fullname);
+          expect(payload.user.id).to.deep.equal(_id);
+          //expect(payload.user).to.deep.equal({ id, username, fullname });
+        });  
+    });
+
+    it('Should reject requests with no credentials', function() {
+      return chai.request(app).post('/api/login').send({})
+        .catch(err => err.respone)
+        .then(res => {
+          console.log(res.body);
+          expect(res).to.have.status(400);
+          expect(res.body).to.be.an('object');
+          expect(res.body.message).to.eq('Bad Request');
+          expect(res.body).to.have.keys('message', 'error');
+        });  
+    });
+
+    it('Should reject requests with incorrect usernames', function() {
+      return chai.request(app).post('/api/login').send({username: 'blahblahblah', password})
+        .catch(err => err.respone)
+        .then(res => {
+          console.log(res.body);
+          expect(res).to.have.status(401);
+          expect(res.body).to.be.an('object');
+          expect(res.body.message).to.eq('Unauthorized');
+          expect(res.body).to.have.keys('message', 'error');
+        });  
+    });
+
+    it.only('Should reject requests with incorrect passwords', function() {
+      return chai.request(app).post('/api/login').send({username, password: 'blahblahblah'})
+        .catch(err => err.respone)
+        .then(res => {
+          console.log(res.body);
+          expect(res).to.have.status(401);
+          expect(res.body).to.be.an('object');
+          expect(res.body.message).to.eq('Unauthorized');
+          expect(res.body).to.have.keys('message', 'error');
         });  
     });
   });
 });
+
+
+
+
