@@ -1,10 +1,10 @@
 language: node_js
 node_js: node
 services: mongodb
-# deploy:
-#     provider: heroku
-#     api_key:
-#       secure: [YOUR-API-KEY]
-#     app: [YOUR-APP-NAME]
-#     on:
-#       repo: [YOUR-APP-REPO]
+deploy:
+  provider: heroku
+  api_key:
+    secure: X6sOPfHK09AGnj//HyDJ9UkK8D+F5FwzuV166J2UJMMFDdedCA68m1+Bt2yfENI2Y5BeFtkoC2R64ZFurTAmBIF48D+mb/ojIeKOUpZd6/dFzMQdtyXCMk8WUXHIZWDgjWe8FgmvHc/PYr6ckrLtXOF4h9Fp7wivibmiHKO/JQTACqQk+gVWEKscTLl/kE1lrWLPnK/ROfpX3R0y39ILbkNAzlvFIh0p/4JRUi0fUvUy/waHImQQyfiBk4sYLw5X2Lzo3VlKWvO8lg8eOq6G9arVtIAbOBnuG+XGos0iXsarQ+/w9j5aPiCzP2rdLS/pKLo9WzdNt6GNnYNSWPpltdxiWeJ63RtZigp0r24JiZ2KXBxEd/7UvTBHPh1wyKPJozZzZLAT71eTIKtKiUkuTKQ4Ht5m/ckL9IgdoBvVo3JQZe/Dclc5kH1sW9NpRFt+Ts2eWh4jTFFIJ/ay1S5ksWxjn5jumViAKZQICbPgO+vOlmVqI897Zu373zn/U7A7Ue8DN0tKPNFbCVLYN+WLvRMG/la53tccIF+hZVckBrB+rRop/c3WOjE7wEMH3Gck5arjXrnVYnaoU0cThXVUl1hy/WhZmHQNiF5agSZrSzqqDAZdB2PKvPXTa9P4FnlEVLSqEiZgQZaCcgkyiYXkvjSvSRrpJ4xWFWDhk/LTlx4=
+  app: sarah-noteful-app-v4
+  on:
+    repo: thinkful-ei19/sarah-noteful-app-v4
