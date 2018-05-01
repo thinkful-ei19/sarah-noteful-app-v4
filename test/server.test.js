@@ -78,7 +78,7 @@ describe('Noteful Server tests', function()  {
 
     });
 
-    describe.only('404 handler', () => {
+    describe('404 handler', () => {
 
       it('should respond with 404 when given a bad path', () => {
         return chai.request(app)
